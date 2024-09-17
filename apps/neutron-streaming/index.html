@@ -1,1 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Neutron Streaming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
 
+        body {
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: relative;
+            background-color: black;
+        }
+
+        .fade-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 35%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.4) 55%, rgba(0, 0, 0, 0.7) 60%, rgba(0, 0, 0, 1) 65%);
+            z-index: 1;
+        }
+
+        .header {
+            background-color: rgba(28, 28, 28, 0.95);
+            height: 70px;
+            border-radius: 12px;
+            margin: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 2; /* Ensures the header is above the overlay */
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .header-text {
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .header-links a:hover {
+            color: #FFD700;
+        }
+        
+        .featured-title {
+            font-size: 3rem;
+            color: white;
+            font-weight: bold;
+            margin-left: 45px;
+            position: absolute;
+            top: 66%;
+            z-index: 10;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .ratings {
+            position: absolute;
+            top: 75.5%;
+            left: 45px;
+            z-index: 10;
+            display: flex;
+            gap: 10px; /* Space between boxes */
+            font-weight: bold;
+        }
+
+        .rating-box {
+            background-color: #313638;
+            color: white;
+            padding: 3px 5px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .description {
+            position: absolute;
+            top: 82%;
+            left: 45px;
+            color: white;
+            max-width: 80%;
+            z-index: 10;
+            font-size: 1.1rem;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .stream-now-button {
+            position: absolute;
+            top: 91%;
+            left: 45px;
+            padding: 10px 20px;
+            background-color: #FFD700;
+            color: black;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-transform: uppercase;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            transition: background-color 0.3s ease;
+            z-index: 10;
+        }
+
+        .stream-now-button:hover {
+            background-color: #E5C100;
+        }
+    </style>
+</head>
+<body>
+    <div class="fade-overlay"></div>
+    <div class="header">
+        <div class="header-logo">
+            <img src="">
+            <div class="header-text">Neutron Streaming</div>
+        </div>
+        <div class="header-links">
+            <a href="/">Home</a>
+            <a href="/movies">Movies</a>
+            <a href="/series">Series</a>
+            <a href="/search">Search</a>
+            <a href="/settings">Settings</a>
+        </div>
+    </div>
+    <div class="featured-title" id="featured-title"></div>
+    <div class="ratings" id="ratings"></div>
+    <div class="description" id="description"></div>
+    <button class="stream-now-button">Stream Now</button>
+
+    <script>
+        const apiKey = '9b80b3bf5231a6f349ac797f1a6135e6'; // Replace with your TMDb API key
+        const apiUrl = `https://api.themoviedb.org/3/trending/all/day?api_key=${apiKey}`;
+
+        // Fetch data from TMDb API
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const topItem = data.results[0]; // Get the #1 trending movie/show
+
+                // Fetch additional details for ratings, seasons, etc.
+                const itemType = topItem.media_type === 'movie' ? 'movie' : 'tv';
+                const detailsUrl = `https://api.themoviedb.org/3/${itemType}/${topItem.id}?api_key=${apiKey}`;
+
+                fetch(detailsUrl)
+                    .then(response => response.json())
+                    .then(details => {
+                        // Set background image
+                        document.body.style.backgroundImage = `url(https://image.tmdb.org/t/p/w1280${topItem.backdrop_path})`;
+
+                        // Update the title, ratings, and description
+                        document.getElementById('featured-title').textContent = topItem.title || topItem.name;
+
+                        const audienceRating = topItem.vote_average.toFixed(1); // Round to 1 decimal place
+                        const contentRating = details.release_dates ? details.release_dates.results[0].release_dates[0].certification : (details.content_ratings ? details.content_ratings.results[0].rating : "Not Rated");
+                        
+                        let lengthOrSeasons = '';
+                        if (itemType === 'movie') {
+                            lengthOrSeasons = `${details.runtime} min`;
+                        } else if (itemType === 'tv') {
+                            lengthOrSeasons = `${details.number_of_seasons} seasons`;
+                        }
+
+                        // Set ratings
+                        document.getElementById('ratings').innerHTML = `
+                            <div class="rating-box">${contentRating}</div>
+                            <div class="rating-box">${audienceRating}/10</div>
+                            <div class="rating-box">${lengthOrSeasons}</div>
+                        `;
+
+                        // Set description
+                        document.getElementById('description').textContent = topItem.overview;
+                    })
+                    .catch(error => console.error('Error fetching details:', error));
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    </script>
+</body>
+</html>

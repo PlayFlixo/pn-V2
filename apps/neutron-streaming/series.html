@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Neutron Streaming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body {
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: relative;
+            background-color: black;
+        }
+
+        .header {
+            background-color: rgba(28, 28, 28, 0.95);
+            min-height: 70px;
+            height: 70px; /* This ensures the height is exactly 70px */
+            margin: 0px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+            position: relative; /* Ensure it doesn't collapse due to the page layout */
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .header-text {
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .header-links a:hover {
+            color: #FFD700;
+        }
+        
+            .series-section {
+            max-width: 1200px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 10px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        /* Updated grid layout */
+        .series-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive columns */
+            gap: 20px;
+        }
+
+        .series-card {
+            background-color: #1C1C1C;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .series-card img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .series-title {
+            margin-top: 10px;
+            font-size: 1rem;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-logo">
+            <img src="/logo.png">
+            <div class="header-text">Neutron Streaming</div>
+        </div>
+        <div class="header-links">
+            <a href="/">Home</a>
+            <a href="/movies">Movies</a>
+            <a href="/series">Series</a>
+            <a href="/search">Search</a>
+            <a href="/settings">Settings</a>
+        </div>
+    </div>
+    
+    <div class="series-section">
+        <div id="top-rated-series" class="series-grid"></div>
+    </div>
+
+    <script>
+        const API_KEY = '9b80b3bf5231a6f349ac797f1a6135e6'; // Replace with your TMDb API key
+        const BASE_URL = 'https://api.themoviedb.org/3';
+        const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500'; // Image path for posters
+
+        // Fetch Top-Rated English TV Series from pages 1 to 25
+        async function fetchTopRatedSeries() {
+            const totalPages = 25;
+            let allSeries = [];
+
+            for (let page = 1; page <= totalPages; page++) {
+                const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&language=en-US&vote_count.gte=500&sort_by=vote_average.desc&page=${page}`);
+                const data = await response.json();
+                allSeries = allSeries.concat(data.results); // Concatenate results from each page
+            }
+
+            displaySeries(allSeries, 'top-rated-series');
+        }
+
+        // Function to display series in the grid
+        function displaySeries(seriesList, elementId) {
+            const seriesGrid = document.getElementById(elementId);
+            seriesGrid.innerHTML = ''; // Clear previous content
+            seriesList.forEach(series => {
+                const seriesCard = document.createElement('div');
+                seriesCard.classList.add('series-card');
+
+                const img = document.createElement('img');
+                img.src = `${IMAGE_BASE_URL}${series.poster_path}`;
+                img.alt = series.name;
+
+                const title = document.createElement('div');
+                title.classList.add('series-title');
+                title.textContent = series.name;
+
+                // Link to a page with embedded video from Vidsrc
+                seriesCard.addEventListener('click', () => {
+                    window.location.href = `/tv?id=${series.id}`;
+                });
+
+                seriesCard.appendChild(img);
+                seriesCard.appendChild(title);
+                seriesGrid.appendChild(seriesCard);
+            });
+        }
+
+        // Fetch and display series
+        fetchTopRatedSeries();
+    </script>
+</body>
+</html>

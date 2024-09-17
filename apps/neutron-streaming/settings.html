@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Neutron Streaming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body {
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: relative;
+            background-color: black;
+        }
+
+        .header {
+            background-color: rgba(28, 28, 28, 0.95);
+            height: 70px;
+            margin: 0px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .header-text {
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .header-links a:hover {
+            color: #FFD700;
+        }
+
+        .content {
+            color: white;
+            text-align: center;
+            margin-top: 100px;
+        }
+
+        .content h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .content p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .server-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .server-buttons button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .server-buttons button:hover {
+            background-color: #555;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-logo">
+            <img src="your-logo-image.png" alt="Logo">
+            <div class="header-text">Neutron Streaming</div>
+        </div>
+        <div class="header-links">
+            <a href="/">Home</a>
+            <a href="/movies">Movies</a>
+            <a href="/series">Series</a>
+            <a href="/search">Search</a>
+            <a href="/settings">Settings</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>Select a server:</h2>
+        <p>The server is where we will display the content through. Choose one that is working or unblocked for you.</p>
+        <div class="server-buttons">
+            <button onclick="selectServer(1)">Server 1</button>
+            <button onclick="selectServer(2)">Server 2</button>
+            <button onclick="selectServer(3)">Server 3</button>
+            <button onclick="selectServer(4)">Server 4</button>
+        </div>
+
+        <h2>Test the server</h2>
+        <p>Test the selected server to check if it's working or unblocked:</p>
+        <div class="server-buttons">
+            <button onclick="testServer(1)">Server 1</button>
+            <button onclick="testServer(2)">Server 2</button>
+            <button onclick="testServer(3)">Server 3</button>
+            <button onclick="testServer(4)">Server 4</button>
+        </div>
+    </div>
+
+    <script>
+        // Save the selected server number to localStorage
+        function selectServer(serverNumber) {
+            localStorage.setItem('selectedServer', serverNumber);
+            alert(`Server ${serverNumber} selected!`);
+        }
+        
+        // Retrieve and show the selected server when the page loads
+        window.onload = function() {
+            const savedServer = localStorage.getItem('selectedServer');
+            if (savedServer) {
+                alert(`Previously selected server: Server ${savedServer}`);
+            } else {
+                alert("No server selected yet.");
+            }
+        };
+
+        // Open the server URL in a new window
+        function openServer(url) {
+            var win = window.open();
+            win.document.body.style.margin = '0';
+            win.document.body.style.height = '100vh';
+            var iframe = win.document.createElement('iframe');
+            iframe.style.border = 'none';
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.src = url;
+            win.document.body.appendChild(iframe);
+        }
+
+        // Retrieve and show the selected server (if needed)
+        window.onload = function() {
+            const savedServer = localStorage.getItem('selectedServer');
+            if (savedServer) {
+                console.log(`Previously selected server: Server ${savedServer}`);
+            }
+        };
+    </script>
+</body>
+</html>

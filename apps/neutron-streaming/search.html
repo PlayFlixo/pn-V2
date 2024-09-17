@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Neutron Streaming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body {
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: relative;
+            background-color: black;
+        }
+
+        .header {
+            background-color: rgba(28, 28, 28, 0.95);
+            min-height: 70px;
+            height: 70px;
+            margin: 0px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+            position: relative;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .header-text {
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .header-links a:hover {
+            color: #FFD700;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .search-input {
+            width: 300px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .series-section {
+            max-width: 1200px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 10px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .series-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .series-card {
+            background-color: #1C1C1C;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .series-card img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .series-title {
+            margin-top: 10px;
+            font-size: 1rem;
+            color: white;
+        }
+
+        .no-results {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+
+        /* Loading Spinner Styles */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+        }
+
+        .spinner {
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-top: 8px solid #fff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-logo">
+            <img src="/logo.png">
+            <div class="header-text">Neutron Streaming</div>
+        </div>
+        <div class="header-links">
+            <a href="/">Home</a>
+            <a href="/movies">Movies</a>
+            <a href="/series">Series</a>
+            <a href="/search">Search</a>
+            <a href="/settings">Settings</a>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <input type="text" class="search-input" id="search-input" placeholder="Search for Movies or TV Shows">
+    </div>
+
+    <div class="series-section">
+        <div id="loading-spinner" class="loading-spinner" style="display: none;">
+            <div class="spinner"></div>
+        </div>
+        <div id="search-results" class="series-grid"></div>
+        <div id="no-results" class="no-results" style="display: none;">No results found</div>
+    </div>
+
+    <script>
+        const API_KEY = '9b80b3bf5231a6f349ac797f1a6135e6'; // Replace with your TMDb API key
+        const BASE_URL = 'https://api.themoviedb.org/3';
+        const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const noResultsMessage = document.getElementById('no-results');
+
+        // Event listener for search input
+        searchInput.addEventListener('keyup', (event) => {
+            const query = event.target.value.trim();
+            if (query) {
+                searchMoviesAndTVShows(query);
+            } else {
+                searchResults.innerHTML = '';
+                noResultsMessage.style.display = 'none';
+            }
+        });
+
+        // Function to search for movies and TV shows
+        async function searchMoviesAndTVShows(query) {
+            loadingSpinner.style.display = 'flex';
+            searchResults.style.display = 'none';
+            noResultsMessage.style.display = 'none';
+
+            try {
+                const response = await fetch(`${BASE_URL}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                displaySearchResults(data.results);
+            } catch (error) {
+                console.error('Error fetching search results:', error);
+                loadingSpinner.style.display = 'none';
+                searchResults.innerHTML = '';
+                noResultsMessage.style.display = 'block';
+                noResultsMessage.textContent = 'Error fetching search results. Please try again.';
+            }
+        }
+
+        // Function to display search results
+        function displaySearchResults(results) {
+            loadingSpinner.style.display = 'none';
+            searchResults.innerHTML = ''; // Clear previous results
+
+            if (results.length === 0) {
+                noResultsMessage.style.display = 'block';
+                searchResults.style.display = 'none';
+            } else {
+                searchResults.style.display = 'grid';
+                noResultsMessage.style.display = 'none';
+
+                results.forEach(item => {
+                    const { title, name, poster_path, id, media_type } = item;
+                    const movieCard = document.createElement('div');
+                    movieCard.classList.add('series-card');
+
+                    const img = document.createElement('img');
+                    img.src = poster_path ? `${IMAGE_BASE_URL}${poster_path}` : '/no-image.png';
+                    img.alt = title || name;
+
+                    const itemTitle = document.createElement('div');
+                    itemTitle.classList.add('series-title');
+                    itemTitle.textContent = title || name;
+
+                    movieCard.addEventListener('click', () => {
+                        if (media_type === 'movie') {
+                            window.location.href = `/movie?id=${id}`;
+                        } else if (media_type === 'tv') {
+                            window.location.href = `/tv?id=${id}`;
+                        }
+                    });
+
+                    movieCard.appendChild(img);
+                    movieCard.appendChild(itemTitle);
+                    searchResults.appendChild(movieCard);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

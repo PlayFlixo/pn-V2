@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Neutron Streaming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        body {
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: relative;
+            background-color: black;
+        }
+
+        .header {
+            background-color: rgba(28, 28, 28, 0.95);
+            height: 70px;
+            margin: 0px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .header-text {
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .header-links a:hover {
+            color: #FFD700;
+        }
+
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        iframe {
+            width: 100%;
+            flex-grow: 1;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-logo">
+            <img src="your-logo-image.png" alt="Logo">
+            <div class="header-text">Neutron Streaming</div>
+        </div>
+        <div class="header-links">
+            <a href="/">Home</a>
+            <a href="/movies">Movies</a>
+            <a href="/series">Series</a>
+            <a href="/search">Search</a>
+            <a href="/settings">Settings</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <iframe id="server-frame" src=""></iframe>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const savedServer = localStorage.getItem('selectedServer');
+            const iframe = document.getElementById('server-frame');
+            
+            // Get the 'id' parameter from the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const mediaId = urlParams.get('id'); // Grabs the value after ?id=
+
+            let baseUrl = '';
+            let mediaType = '';  // Holds "movie" or "tv"
+
+            // Set base URL depending on saved server
+            if (savedServer === '1') {
+                baseUrl = 'https://vidsrc.xyz';
+            } else if (savedServer === '2') {
+                baseUrl = 'https://project-neutron.site';
+            }
+
+            // Determine if it's a TV show based on the URL path
+            if (window.location.pathname.includes('/tv')) {
+                mediaType = 'tv';
+            } else {
+                mediaType = 'movie';
+            }
+
+            // If there is a media ID in the query, append it to the iframe URL
+            if (mediaId) {
+                iframe.src = `${baseUrl}/embed/${mediaType}/${mediaId}`;
+            } else {
+                iframe.src = '/404'; // Default to base URL if no ID is provided
+            }
+        };
+    </script>
+</body>
+</html>
