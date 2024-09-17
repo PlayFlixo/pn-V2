@@ -171,7 +171,7 @@
         fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
-                const topItem = data.results[0]; // Get the #1 trending movie/show
+                const topItem = data.results[4]; // Get the #1 trending movie/show
 
                 // Fetch additional details for ratings, seasons, etc.
                 const itemType = topItem.media_type === 'movie' ? 'movie' : 'tv';
