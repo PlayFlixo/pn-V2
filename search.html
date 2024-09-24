@@ -253,10 +253,11 @@
         }
 
         .frame {
-            width: 100%;
-            height: 92vh;
+            width: 100%; /* Set width to 100% of the viewport */
+            height: calc(100vh - 8vh); /* Full height minus the nav bar height */
             border: none;
-            bottom: 0;
+            position: absolute;
+            top: 8vh; /* Position it right under the nav bar */
         }
     </style>
 </head>
@@ -288,7 +289,7 @@
           <!-- <script type="text/javascript" src="//www.topcreativeformat.com/fc0ad22bd8c1ea22c8c08df927121e8f/invoke.js"></script> -->
         </div>
       </div>
-      <iframe class="frame"></iframe>
+    <iframe class="frame" style="top: 8vh;"></iframe>
     <script>
         function updateTime() {
             const now = new Date();
